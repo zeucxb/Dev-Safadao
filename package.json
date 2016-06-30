@@ -6,14 +6,22 @@
   "author": "ZeuCxb",
   "license": "MIT",
   "dependencies": {
-    "commander": "^2.9.0",
-    "inquirer": "^1.1.0"
+    "inquirer": "^1.1.0",
+    "node-fetch": "^1.5.3",
+    "ora": "^0.2.3"
   },
+  "devDependencies": {},
   "preferGlobal": true,
   "bin": {
     "devsafadao": "main.js"
   },
-  "devDependencies": {},
+  "files": [
+    "main.js",
+    "questions"
+  ],
+  "engines": {
+    "node": ">=4"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
