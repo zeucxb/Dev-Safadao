@@ -1,72 +1,64 @@
 #!/usr/bin/env node
 'use strict'
 
-const program = require('commander')
-const inquirer = require("inquirer")
-
-const https = require('https')
-
+const inquirer = require('inquirer')
+const fetch = require('node-fetch')
+const ora = require('ora')
 const pkg = require('./package.json')
+const spinner = ora({ color: 'yellow', text: 'Carregando ...'})
 
-program
-	.version(pkg.version)
+var questions = require('./questions/safadao.js')
 
-program
-  .command('name')
-    .description('Retorna seu nome DEVSAFADÃO')
-    .action(() => {
-      var questions = require('./questions/safadao.js')
+inquirer.prompt(questions)
+  .then((answers) => {
+    if(answers.hasGitHub) {
+      let options = {
+        method: 'GET',
+        headers: {'User-Agent':'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)'}
+      }
 
-      inquirer.prompt(questions)
-        .then((answers) => {
-          if(answers.hasGitHub) {
-            let options = {
-              host:'api.github.com',
-              path: `/users/${answers.username}/repos`,
-              method: 'GET',
-              headers: {'User-Agent':'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)'}
+      let url = `https://api.github.com/users/${answers.username}/repos`
+
+      spinner.text = 'Vasculhando seu GitHub...'
+      spinner.start()
+
+      fetch(url, options).then((res) => {
+        if (res.status === 404) {
+          spinner.stop()
+          console.log('Usuário do Github não encontrado.')
+          process.exit(1)
+        }
+
+        return res.json()
+      }).then((repos) => {
+          let languages = []
+
+          spinner.text = 'Verificando seus repositórios...'
+          repos.map(repo => {
+            if(repo.language != null) {
+              if(languages[repo.language]) {
+                languages[repo.language]++
+              } else {
+                languages[repo.language] = 1
+              }
             }
+          })
 
-            console.log('Vasculhando seu GitHub...')
+          spinner.text = 'Ordenando os resultados...'
 
-            https.get(options, (r) => {
-              var body = ''
-              
-              r.on('data', (data) => {
-                body += data
-              })
+          let language = Object.keys(languages).sort((a, b) => {
+            return languages[b] - languages[a]
+          })
 
-              r.on('end', () => {
-                let repos = JSON.parse(body)
-                let languages = []
+          spinner.stop()
 
-                console.log('Verificando seus repositórios...')
-                repos.map(repo => {
-                  if(repo.language != null) {
-                    if(languages[repo.language]) {
-                      languages[repo.language]++
-                    } else {
-                      languages[repo.language] = 1
-                    }
-                  }
-                })
-                console.log('Ordenando os resultados...')
-
-                let language = Object.keys(languages).sort((a, b) => {
-                  return languages[b] - languages[a]
-                })
-
-                console.log('Seu nome de DEVSAFADÃO é:')
-                console.log(`${answers.name} safadão do ${language[0]}!`)
-              })
-            })
-          } else {
-            console.log('Você não é um DEVSAFADÃO.')
-            console.log(`Mas se fosse, seria: ${answers.name} safadão do ${answers.language}!`)
-            console.log('P.S: DEVS SAFADÕES, TEM GITHUB.')
-          }
+          console.log('Seu nome de DEVSAFADÃO é:')
+          console.log(`${answers.name} safadão do ${language[0]}!`)
       })
-    });
-
-program
-	.parse(process.argv)
+    } else {
+      spinner.stop()
+      console.log('Você não é um DEVSAFADÃO.')
+      console.log(`Mas se fosse, seria: ${answers.name} safadão do ${answers.language}!`)
+      console.log('P.S: DEVS SAFADÕES, TEM GITHUB.')
+    }
+})

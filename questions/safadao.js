@@ -1,5 +1,3 @@
-const inquirer = require("inquirer")
-
 const questions = [
     {
       	type: 'input',
@@ -12,15 +10,21 @@ const questions = [
       	name: 'hasGitHub',
       	message: 'Você tem github?',
     },
-    { 
+    {
       when: function (response) {
           return response.hasGitHub
         },
         type: 'input',
         name: 'username',
         message: 'Qual seu username?',
+        validate: function (input) {
+          if (input && input.length)
+            return true
+
+          return false
+        }
     },
-    { 
+    {
       when: function (response) {
           return !response.hasGitHub
         },
