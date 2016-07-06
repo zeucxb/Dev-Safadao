@@ -12,6 +12,6 @@ npm i -g devsafadao
 #Execução
 Para utilizar essa maravilha, executar o seguinte comando no seu terminal:
 ```js
-devsafadao name
+devsafadao
 ```
 A incrível ferramenta do DevSafadão vai te fazer umas perguntinhas, e *voilá* :)

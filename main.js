@@ -4,7 +4,6 @@
 const inquirer = require('inquirer')
 const fetch = require('node-fetch')
 const ora = require('ora')
-const pkg = require('./package.json')
 const spinner = ora({ color: 'yellow', text: 'Carregando ...'})
 
 var questions = require('./questions/safadao.js')
